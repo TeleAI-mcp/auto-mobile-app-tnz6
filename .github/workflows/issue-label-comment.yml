@@ -1,0 +1,36 @@
+name: Issue Label Comment Bot
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  comment-on-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on issue based on label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const label = context.payload.label.name;
+            const issueNumber = issue.number;
+            
+            let commentBody = '';
+            
+            if (label === 'completed') {
+              commentBody = 'This issue has been resolved. Thank you for your contribution!';
+            } else if (label === 'enhancement') {
+              commentBody = 'Thanks for the enhancement suggestion! We appreciate your input.';
+            } else if (label === 'bug') {
+              commentBody = 'Thank you for reporting this bug. Our team will investigate and fix it.';
+            }
+            
+            if (commentBody) {
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: commentBody
+              });
+            }
